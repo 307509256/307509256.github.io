@@ -1,0 +1,695 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="IQs30MFrhmrm-Nfmv-_neEbXELyUuxvZtdin1ALJ4aA" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="OpenGL PBO OpenGL ARB_pixel_buffer_object的扩展非常接近ARB_vertex_buffer_object。它只是ARB_vertex_buffer_object的扩展，以便不仅存储顶点数据，而且像素数据到缓冲区对象。存储像素数据的该缓冲对象称为像素缓冲对象（PBO）。ARB_pixel_buffer_object扩展借用了所有VBO框架和API，另外，添加">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenGL Pixel Buffer Object (PBO)">
+<meta property="og:url" content="http://yoursite.com/2017/02/27/2017-02-07-pbo/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="OpenGL PBO OpenGL ARB_pixel_buffer_object的扩展非常接近ARB_vertex_buffer_object。它只是ARB_vertex_buffer_object的扩展，以便不仅存储顶点数据，而且像素数据到缓冲区对象。存储像素数据的该缓冲对象称为像素缓冲对象（PBO）。ARB_pixel_buffer_object扩展借用了所有VBO框架和API，另外，添加">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1207479-1e8e605d79571825.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1207479-97edaaa740419931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1207479-96071d46922259b0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1207479-c237fe37416acd91.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1207479-7be7dec3fe61ee41.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1207479-a221acf5f4c7b1b4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://www.songho.ca/opengl/files/gl_pbo07.png">
+<meta property="og:updated_time" content="2017-02-27T09:34:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenGL Pixel Buffer Object (PBO)">
+<meta name="twitter:description" content="OpenGL PBO OpenGL ARB_pixel_buffer_object的扩展非常接近ARB_vertex_buffer_object。它只是ARB_vertex_buffer_object的扩展，以便不仅存储顶点数据，而且像素数据到缓冲区对象。存储像素数据的该缓冲对象称为像素缓冲对象（PBO）。ARB_pixel_buffer_object扩展借用了所有VBO框架和API，另外，添加">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1207479-1e8e605d79571825.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/27/2017-02-07-pbo/"/>
+
+
+
+
+
+  <title> OpenGL Pixel Buffer Object (PBO) | Hexo </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Hexo</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/27/2017-02-07-pbo/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="gongjia">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/5523697?v=3&u=82d807210a39773a60ee8307289362819c3f79d8&s=400">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Hexo">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Hexo" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                OpenGL Pixel Buffer Object (PBO)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-27T20:46:25+08:00">
+                2017-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://upload-images.jianshu.io/upload_images/1207479-1e8e605d79571825.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="OpenGL像素缓冲区对象（PBO）"> OpenGL PBO</p>
+<p>OpenGL <a href="https://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt" target="_blank" rel="noopener">ARB_pixel_buffer_object</a>的扩展非常接近<a href="http://www.songho.ca/opengl/gl_vbo.html" target="_blank" rel="noopener">ARB_vertex_buffer_object</a>。<br>它只是ARB_vertex_buffer_object的扩展，以便不仅存储顶点数据，而且像素数据到缓冲区对象。<br>存储像素数据的该缓冲对象称为像素缓冲对象（PBO）。<br>ARB_pixel_buffer_object扩展借用了所有VBO框架和API，另外，添加了2个额外的”target” tokens。<br>这些tokens辅助PBO存储器管理器（OpenGL驱动器）来确定缓冲器对象的最佳位置;<br>系统存储器，共享存储器或视频存储器。<br>此外，”target” tokens清楚地指定绑定的PBO将在两个不同操作中的一个中使用;<br>GL_PIXEL_PACK_BUFFER_ARB用于将像素数据传输到PBO，或GL_PIXEL_UNPACK_BUFFER_ARB用于从PBO传输像素数据。</p>
+<p>例如，glReadPixels（）和glGetTexImage（）是“pack” 像素操作，glDrawPixels（），glTexImage2D（）和glTexSubImage2D（）是<br>“解包”操作。<br>当PBO与GL_PIXEL_PACK_BUFFER_ARB令牌绑定时，glReadPixels（）从OpenGL帧缓冲区读取像素数据，并将数据写入（打包）到PBO中。<br>当PBO与GL_PIXEL_UNPACK_BUFFER_ARB令牌绑定时，glDrawPixels（）从PBO读取（解压缩）像素数据并将其复制到OpenGL帧缓冲区。</p>
+<p>PBO的主要优点是通过DMA（直接存储器访问）实现快速像素数据传输到图形卡和从图形卡传输，而不会影响CPU周期。<br>而且，PBO的另一个优点是异步DMA传输。<br>让我们比较一个传统的纹理传输方法和使用一个像素缓冲对象。<br>下图的左侧是从图像源（图像文件或视频流）加载纹理数据的常规方法。<br>源首先被加载到系统内存中，然后从系统内存复制到一个带有glTexImage2D（）的OpenGL纹理对象。<br>这两个传送过程（加载和复制）都由CPU执行。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1207479-97edaaa740419931.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="常规纹理加载"> 无PBO的纹理加载</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1207479-96071d46922259b0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="纹理加载与PBO"> 纹理加载与PBO</p>
+<p>相反，在右侧图中，图像源可以直接加载到由OpenGL控制的PBO中。<br>CPU仍然涉及将源加载到PBO，但是不用于将像素数据从PBO传送到纹理对象。<br>相反，GPU（OpenGL驱动程序）管理将数据从PBO复制到纹理对象。<br>这意味着OpenGL执行DMA传输操作，而不会浪费CPU周期。<br>此外，OpenGL可以调度异步DMA传输以供稍后执行。<br>因此，glTexImage2D（）立即返回，CPU可以执行其他操作，而不用等待像素传输完成。</p>
+<p>有两个主要的PBO方法来提高像素数据传输的性能：</p>
+<p><a href="http://www.songho.ca/opengl/gl_pbo.html#unpack" target="_blank" rel="noopener">流纹理更新</a>和<a href="http://www.songho.ca/opengl/gl_pbo.html#pack" target="_blank" rel="noopener">从帧缓冲区异步读回</a>。</p>
+<p>创建PBO</p>
+<p>如前所述，Pixel Buffer Object从 <a href="http://www.songho.ca/opengl/gl_vbo.html" target="_blank" rel="noopener">顶点缓冲区对象中</a><br>借用所有API 。<br>唯一的区别是PBO有2个额外的token：</p>
+<p>GL_PIXEL_PACK_BUFFER_ARB和GL_PIXEL_UNPACK_BUFFER_ARB。</p>
+<p>GL_PIXEL_PACK_BUFFER_ARB用于将像素数据从OpenGL传输到应用程序，GL_PIXEL_UNPACK_BUFFER_ARB表示将像素数据从应用程序传输到OpenGL。<br>OpenGL指的是这些token以确定PBO的最佳存储空间，例如，用于上传（拆包）纹理的视频存储器或用于读取（打包）帧缓冲区的系统存储器。<br>然而，这些target token只是提示。<br>OpenGL驱动程序决定适当的位置。</p>
+<p>创建PBO需要3个步骤：<br>使用glGenBuffersARB（）生成一个新的缓冲区对象。<br>使用glBindBufferARB（）绑定缓冲区对象。<br>使用glBufferDataARB（）</p>
+<p>将像素数据复制到缓冲区对象。</p>
+<p>如果在glBufferDataARB（）中指定了指向源数组的NULL指针，则PBO只分配给定数据大小的内存空间。<br>glBufferDataARB（）的最后一个参数是PBO提供如何使用缓冲区对象的另一个性能提示。</p>
+<p>GL_STREAM_DRAW_ARB用于流纹理上传，<br>GL_STREAM_READ_ARB用于异步帧缓冲读回。</p>
+<p>请检查<br><a href="http://www.songho.ca/opengl/gl_vbo.html#create" target="_blank" rel="noopener">VBO</a>了解更多详情。</p>
+<p>映射PBO<br>PBO提供了一种存储器映射机制，以将OpenGL控制的缓冲器对象映射到客户机的存储器地址空间。<br>因此，客户端可以通过使用<br>glMapBufferARB（）和glUnmapBufferARB（）<br>来修改缓冲区对象或整个缓冲区的一部分。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">void* glMapBufferARB(GLenum target, GLenum access)</div><div class="line"></div><div class="line">GLboolean glUnmapBufferARB(GLenum target)</div></pre></td></tr></table></figure>
+<p>如果成功，glMapBufferARB（）返回指向缓冲区对象的指针。<br>否则返回NULL。<br>该目标参数是GL_PIXEL_PACK_BUFFER_ARB或GL_PIXEL_UNPACK_BUFFER_ARB。<br>第二个参数，</p>
+<p>access<br>指定如何处理映射缓冲区;<br>从PBO读取数据（GL_READ_ONLY_ARB），将数据写入PBO（GL_WRITE_ONLY_ARB）或两者（GL_READ_WRITE_ARB）。</p>
+<p>注意，如果GPU仍然使用缓冲区对象，glMapBufferARB（）将不会返回，直到GPU完成其作业与相应的缓冲区对象。<br>为了避免这种停顿（等待），在glMapBufferARB（）之前调用带有NULL指针的glBufferDataARB（）。<br>然后，OpenGL将丢弃旧的缓冲区，并为缓冲区对象分配新的内存空间。</p>
+<p>缓冲区对象必须在使用PBO后通过glUnmapBufferARB（）取消映射。<br>如果成功，glUnmapBufferARB（）返回GL_TRUE。<br>否则，它返回GL_FALSE。</p>
+<p>示例：流纹理上传<br><img src="http://upload-images.jianshu.io/upload_images/1207479-c237fe37416acd91.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="与PBO的流纹理"><br>下载源码和二进制文件：</p>
+<p><a href="http://www.songho.ca/opengl/files/pboUnpack.zip" target="_blank" rel="noopener">pboUnpack.zip</a>（Updated：2014-04-24）</p>
+<p>这个演示应用程序使用PBO上传（解压缩）流纹理到一个OpenGL纹理对象。<br>您可以通过按空格键切换到不同的传输模式（单个PBO，双PBO和无PBO），并比较性能差异。</p>
+<p>在PBO模式中每个帧，纹理源直接写在映射的像素缓冲器上。<br>然后，使用glTexSubImage2D（）将这些数据从PBO传输到纹理对象。<br>通过使用PBO，OpenGL可以在PBO和纹理对象之间执行异步DMA传输。<br>它显着增加了纹理上传性能。<br>如果支持异步DMA传输，glTexSubImage2D（）应立即返回，并且CPU可以处理其他作业，而不等待实际的纹理复制。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1207479-7be7dec3fe61ee41.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="使用2个流传输纹理上传"> </p>
+<p>要最大化流传输性能，您可以使用多个像素缓冲区对象。<br>该图显示了2个PBO同时使用;<br>当纹理源正在写入另一个PBO时，glTexSubImage2D（）从PBO复制像素数据。</p>
+<p>对于第n帧，<br>PBO 1<br>用于glTexSubImage2D（），<br>PBO 2<br>用于获取新的纹理源。<br>对于第n + 1帧，2个像素缓冲器正在切换角色并继续更新纹理。<br>由于异步DMA传输，更新和复制过程可以同时执行。<br>CPU将纹理源更新为PBO，而GPU从其他PBO复制纹理。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">// &quot;index&quot; is used to copy pixels from a PBO to a texture object// &quot;nextIndex&quot; is used to update pixels in the other PBO</div><div class="line">index = (index + 1) % 2;</div><div class="line">nextIndex = (index + 1) % 2;</div><div class="line"></div><div class="line">// bind the texture and PBO</div><div class="line">glBindTexture(GL_TEXTURE_2D, textureId);</div><div class="line">glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[index]);</div><div class="line"></div><div class="line">// copy pixels from PBO to texture object// Use offset instead of ponter.</div><div class="line">glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, WIDTH, HEIGHT,</div><div class="line">GL_BGRA, GL_UNSIGNED_BYTE, 0);</div><div class="line"></div><div class="line">// bind PBO to update texture source</div><div class="line">glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[nextIndex]);</div><div class="line"></div><div class="line">// Note that glMapBufferARB() causes sync issue.// If GPU is working with this buffer, glMapBufferARB() will wait(stall)// until GPU to finish its job. To avoid waiting (idle), you can call// first glBufferDataARB() with NULL pointer before glMapBufferARB().// If you do that, the previous data in PBO will be discarded and// glMapBufferARB() returns a new allocated pointer immediately// even if GPU is still working with the previous data.</div><div class="line">glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, DATA_SIZE, 0, GL_STREAM_DRAW_ARB);</div><div class="line"></div><div class="line">// map the buffer object into client&apos;s memory</div><div class="line">GLubyte* ptr = (GLubyte*)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,</div><div class="line">GL_WRITE_ONLY_ARB);</div><div class="line">if(ptr)</div><div class="line">&#123;</div><div class="line">// update data directly on the mapped buffer</div><div class="line">updatePixels(ptr, DATA_SIZE);</div><div class="line">glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB); // release the mapped buffer</div><div class="line">&#125;</div><div class="line"></div><div class="line">// it is good idea to release PBOs with ID 0 after use.// Once bound with 0, all pixel operations are back to normal ways.</div><div class="line">glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);</div></pre></td></tr></table></figure>
+<p>示例：异步读回<br><img src="http://upload-images.jianshu.io/upload_images/1207479-a221acf5f4c7b1b4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="使用PBO进行异步回读"><br>下载源码和二进制文件：<br><a href="http://www.songho.ca/opengl/files/pboPack.zip" target="_blank" rel="noopener">pboPack.zip</a>（Updated：2014-05-13）。</p>
+<p>此演示应用程序将帧缓冲区（左侧）的像素数据读取（打包）到PBO，然后在修改图像的亮度之后将其绘制回窗口的右侧。<br>您可以通过按空格键切换PBO开/关，并测量glReadPixels（）的性能。</p>
+<p>传统的glReadPixels（）阻塞流水线并等待，直到所有像素数据被传输。<br>然后，它将控制权返回给应用程序。<br>相反，具有PBO的glReadPixels（）可以调度异步DMA传输并立即返回而不会停顿。<br>因此，应用程序（CPU）可以立即执行其他进程，同时通过OpenGL（GPU）使用DMA传输数据。<br><img src="http://www.songho.ca/opengl/files/gl_pbo07.png" alt="Asynchronous glReadPixels() with 2 PBOs"></p>
+<p>应用程序使用glReadPixels（）从OpenGL帧<br>缓冲区读取像素数据到PBO 1，并处理PBO 2中的像素数据.<br>这些读取和处理可以同时执行，因为glReadPixels（）到PBO 1立即返回，并且CPU开始在PBO 2中无延迟地处理数据。<br>并且，我们在每个帧上<br>在PBO 1和PBO 2之间交替</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">// &quot;index&quot; is used to read pixels from framebuffer to a PBO</div><div class="line">// &quot;nextIndex&quot; is used to update pixels in the other PBO</div><div class="line">index = (index + 1) % 2;</div><div class="line">nextIndex = (index + 1) % 2;</div><div class="line"></div><div class="line">// set the target framebuffer to read</div><div class="line">glReadBuffer(GL_FRONT);</div><div class="line"></div><div class="line">// read pixels from framebuffer to PBO// glReadPixels() should return immediately.</div><div class="line">glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);</div><div class="line">glReadPixels(0, 0, WIDTH, HEIGHT, GL_BGRA, GL_UNSIGNED_BYTE, 0);</div><div class="line"></div><div class="line">// map the PBO to process its data by CPU</div><div class="line">glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[nextIndex]);</div><div class="line">GLubyte* ptr = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB,</div><div class="line">GL_READ_ONLY_ARB);</div><div class="line">if(ptr)</div><div class="line">&#123;</div><div class="line">	processPixels(ptr, ...);</div><div class="line">	glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);</div><div class="line">&#125;</div><div class="line"></div><div class="line">// back to conventional pixel operation</div><div class="line">glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/14/ijkplayer1/" rel="next" title="ijkplayer丢帧的处理方案">
+                <i class="fa fa-chevron-left"></i> ijkplayer丢帧的处理方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/28/2017-02-28-tensorflow/" rel="prev" title="Tensorflow demo3">
+                Tensorflow demo3 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars0.githubusercontent.com/u/5523697?v=3&u=82d807210a39773a60ee8307289362819c3f79d8&s=400"
+               alt="gongjia" />
+          <p class="site-author-name" itemprop="name">gongjia</p>
+          <p class="site-description motion-element" itemprop="description">AV, ML</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/307509256" target="_blank" title="GithubCode">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  GithubCode
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/883cff8be8c2" target="_blank" title="Jianshu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Jianshu
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://depthlove.github.io" target="_blank" title="Friend">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Friend
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">gongjia</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
